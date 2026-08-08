@@ -145,6 +145,9 @@ export function StudioView({ baseline, isFallback, getBuffer, recordTap, onEndSe
   const handleCapture = async () => {
     const featuresAtCapture = { ...featuresRef.current };
     const classification = featuresAtCapture.classification;
+    // Stop the live background synth so it doesn't overlap with the
+    // capture modal's own music/TTS playback.
+    soundRef.current?.setMuted(true);
     setCapture({
       status: "loading",
       outputId: null,
@@ -346,7 +349,10 @@ export function StudioView({ baseline, isFallback, getBuffer, recordTap, onEndSe
           classification={capture.classification}
           mappingApplied={capture.mappingApplied}
           mood={capture.mood}
-          onClose={() => setCapture(null)}
+          onClose={() => {
+            soundRef.current?.setMuted(false);
+            setCapture(null);
+          }}
         />
       )}
     </div>

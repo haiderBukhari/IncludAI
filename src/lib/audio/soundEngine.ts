@@ -25,6 +25,7 @@ export class SoundEngine {
   private loop: Tone.Loop | null = null;
   private lastNoteAt = 0;
   private ready = false;
+  private muted = false;
 
   async init() {
     if (this.ready) return;
@@ -38,8 +39,14 @@ export class SoundEngine {
     this.ready = true;
   }
 
+  /** Pauses the live background synth without tearing it down — used while
+   * the capture modal's own music/TTS players are up, so they don't overlap. */
+  setMuted(muted: boolean) {
+    this.muted = muted;
+  }
+
   update(features: MotionFeatures) {
-    if (!this.ready || !this.synth) return;
+    if (!this.ready || !this.synth || this.muted) return;
     if (features.classification === "still") return;
 
     const now = Tone.now();
